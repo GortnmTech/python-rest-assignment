@@ -15,8 +15,7 @@ class PostAuthorSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     author = PostAuthorSerializer()
     likes = PostAuthorSerializer(many=True)
-    tags = PostAuthorSerializer(many=True)
     class Meta:
         model = Post
-        fields = ['pk', 'author', 'image', 'caption', 'location',
-                  'likes', 'likes_count', 'tags']
+        fields = ['pk', 'author', 'image', 'caption',
+                  'likes', 'likes_count','posted_time']

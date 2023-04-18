@@ -17,7 +17,6 @@ from django.contrib.auth import get_user_model
 # Local Imports
 from posts.serializers import PostSerializer
 from posts.models import Post
-#from profiles.tests import message
 
 
 class CreatePostAPI(APIView):
@@ -33,21 +32,49 @@ class CreatePostAPI(APIView):
             caption=data.get('caption'),
         )
         post.save()
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED,data={'message': "post created successfully"})
+
+
+class POSTAPI(APIView):
+    def delete(self, request, *args, **kwargs):
+        permission_classes = (permissions.IsAuthenticated,)
+        user = request.user
+        try:
+            post = Post.objects.get(pk=kwargs['pk'])
+        except Post.DoesNotExist:
+            post = None
+        if user is not None and post is not None:
+            post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT, data={"message":"successfully deleted"})
+
+        return Response(status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
+                        data={"error": "Invalid pk values"})
+
+    def get(self, request, *args, **kwargs):
+        permission_classes = (permissions.IsAuthenticated,)
+        user = request.user
+        try:
+            post = Post.objects.get(pk=kwargs['pk'])
+        except Post.DoesNotExist:
+            post = None
+        if user is not None and post is not None:
+            postt=PostSerializer(post)
+            return Response(status=status.HTTP_200_OK, data=postt.data)
+
+        return Response(status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION,
+                        data={"error": "Invalid pk values"})
+
 
 
 
 class GetPostAPI(RetrieveAPIView):
-    serializer_class = PostSerializer
-    queryset = Post.objects.all()
-
-
-class UpdatePostAPI(UpdateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PostSerializer
     queryset = Post.objects.all()
 
 
 class DeletePostAPI(DestroyAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PostSerializer
     queryset = Post.objects.all()
 
